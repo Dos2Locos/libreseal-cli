@@ -13,16 +13,16 @@ RUN go mod download
 COPY src/ ./
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags "-s -w${VERSION:+ -X github.com/phasehq/cli/pkg/version.Version=${VERSION}}" \
-    -o /phase ./
+    -o /libreseal ./
 
 # Runtime stage
 FROM alpine:3.21
 RUN apk add --no-cache ca-certificates && \
-    addgroup -S phase && adduser -S phase -G phase
+    addgroup -S libreseal && adduser -S libreseal -G libreseal
 
-COPY --from=builder /phase /usr/local/bin/phase
+COPY --from=builder /libreseal /usr/local/bin/libreseal
 
-USER phase
+USER libreseal
 
-ENTRYPOINT ["phase"]
+ENTRYPOINT ["libreseal"]
 CMD ["--help"]
