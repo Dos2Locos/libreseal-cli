@@ -23,7 +23,7 @@ func init() {
 
 func runAIDisable(cmd *cobra.Command, args []string) error {
 	if ai.IsAIAgent() {
-		return fmt.Errorf("phase ai disable must be run by the user directly, not by an AI agent")
+		return fmt.Errorf("libreseal ai disable must be run by the user directly, not by an AI agent")
 	}
 
 	if err := os.Remove(config.AIConfigPath); err != nil {

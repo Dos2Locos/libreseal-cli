@@ -16,7 +16,7 @@ import (
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "🔗 Link local project with Phase app",
+	Short: "🔗 Link local project with LibreSeal app",
 	RunE:  runInit,
 }
 

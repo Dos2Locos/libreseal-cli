@@ -64,9 +64,9 @@ func runSecretsImport(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(util.BoldGreen(fmt.Sprintf("✅ Successfully imported and encrypted %d secrets.", len(pairs))))
 	if envName == "" {
-		fmt.Println("To view them please run: phase secrets list")
+		fmt.Println("To view them please run: libreseal secrets list")
 	} else {
-		fmt.Printf("To view them please run: phase secrets list --env %s\n", envName)
+		fmt.Printf("To view them please run: libreseal secrets list --env %s\n", envName)
 	}
 	return nil
 }

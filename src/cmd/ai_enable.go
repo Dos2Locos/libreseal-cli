@@ -13,7 +13,7 @@ import (
 var aiEnableCmd = &cobra.Command{
 	Use:   "enable",
 	Short: "🪄  Enable AI integrations and configure secret visibility",
-	Long:  "Configure how AI tools interact with your Phase secrets. Sealed secret values are always hidden from AI regardless of settings.",
+	Long:  "Configure how AI tools interact with your LibreSeal secrets. Sealed secret values are always hidden from AI regardless of settings.",
 	RunE:  runAIEnable,
 }
 
@@ -26,7 +26,7 @@ func init() {
 
 func runAIEnable(cmd *cobra.Command, args []string) error {
 	if ai.IsAIAgent() {
-		return fmt.Errorf("phase ai enable must be run by the user directly, not by an AI agent")
+		return fmt.Errorf("libreseal ai enable must be run by the user directly, not by an AI agent")
 	}
 
 	maskFlag, _ := cmd.Flags().GetBool("mask")
@@ -51,7 +51,7 @@ func runAIEnable(cmd *cobra.Command, args []string) error {
 		items = append(items, "Custom path...")
 
 		targetPrompt := promptui.Select{
-			Label: "🪄  Install Phase AI skill for",
+			Label: "🪄  Install LibreSeal AI skill for",
 			Items: items,
 		}
 		targetIdx, _, err := targetPrompt.Run()
@@ -81,7 +81,7 @@ func runAIEnable(cmd *cobra.Command, args []string) error {
 	if err := ai.InstallSkillTo(installPath); err != nil {
 		return fmt.Errorf("failed to install skill doc: %w", err)
 	}
-	fmt.Printf("🪄 Phase CLI skill (v%s) installed to: %s\n", ai.SkillVersion(), installPath)
+	fmt.Printf("🪄 LibreSeal CLI skill (v%s) installed to: %s\n", ai.SkillVersion(), installPath)
 
 	// Step 2: Configure secret visibility
 	var maskSecretValues bool

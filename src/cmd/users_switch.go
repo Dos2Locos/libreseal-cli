@@ -10,7 +10,7 @@ import (
 
 var usersSwitchCmd = &cobra.Command{
 	Use:   "switch",
-	Short: "🪄\u200A Switch between Phase users, orgs and hosts",
+	Short: "🪄\u200A Switch between LibreSeal users, orgs and hosts",
 	RunE:  runUsersSwitch,
 }
 
@@ -25,7 +25,7 @@ func runUsersSwitch(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(cfg.PhaseUsers) == 0 {
-		return fmt.Errorf("no users found. Please authenticate first with 'phase auth'")
+		return fmt.Errorf("no users found. Please authenticate first with 'libreseal auth'")
 	}
 
 	// Build display labels for each user

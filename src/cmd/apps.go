@@ -10,7 +10,7 @@ import (
 
 var appsCmd = &cobra.Command{
 	Use:   "apps",
-	Short: "📱 Manage Phase apps",
+	Short: "📱 Manage LibreSeal apps",
 }
 
 var appsListCmd = &cobra.Command{

@@ -11,7 +11,7 @@ import (
 
 var consoleCmd = &cobra.Command{
 	Use:   "console",
-	Short: "🖥️\u200A Open the Phase Console in your browser",
+	Short: "🖥️\u200A Open the LibreSeal Console in your browser",
 	RunE:  runConsole,
 }
 

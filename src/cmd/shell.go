@@ -32,7 +32,7 @@ func init() {
 
 func runShell(cmd *cobra.Command, args []string) error {
 	if ai.IsAIAgent() {
-		return fmt.Errorf("phase shell is not available in AI mode — it would give unrestricted access to injected secrets. Use 'phase run <command>' instead")
+		return fmt.Errorf("libreseal shell is not available in AI mode — it would give unrestricted access to injected secrets. Use 'libreseal run <command>' instead")
 	}
 
 	envName, _ := cmd.Flags().GetString("env")
@@ -143,11 +143,11 @@ func runShell(cmd *cobra.Command, args []string) error {
 
 	if err := c.Run(); err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			fmt.Fprintf(os.Stderr, "%s Phase secrets are no longer available.\n", util.BoldRedErr("🐚 Shell session ended."))
+			fmt.Fprintf(os.Stderr, "%s LibreSeal secrets are no longer available.\n", util.BoldRedErr("🐚 Shell session ended."))
 			os.Exit(exitErr.ExitCode())
 		}
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "%s Phase secrets are no longer available.\n", util.BoldRedErr("🐚 Shell session ended."))
+	fmt.Fprintf(os.Stderr, "%s LibreSeal secrets are no longer available.\n", util.BoldRedErr("🐚 Shell session ended."))
 	return nil
 }

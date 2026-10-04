@@ -27,7 +27,7 @@ func runAzureAuth(cmd *cobra.Command, host string) error {
 	noStore, _ := cmd.Flags().GetBool("no-store")
 	resource, _ := cmd.Flags().GetString("azure-resource")
 
-	// SDK handles everything: DefaultAzureCredential → get JWT → POST to Phase API
+	// SDK handles everything: DefaultAzureCredential → get JWT → POST to LibreSeal API
 	result, err := network.ExternalIdentityAuthAzure(host, serviceAccountID, ttl, resource)
 	if err != nil {
 		return fmt.Errorf("Azure authentication failed: %w", err)

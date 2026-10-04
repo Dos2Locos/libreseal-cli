@@ -12,12 +12,12 @@ import (
 func FormatSDKError(err error) string {
 	var netErr *network.NetworkError
 	if errors.As(err, &netErr) {
-		const offlineHint = ". Set PHASE_OFFLINE=1 to use cached data if available."
+		const offlineHint = ". Set LIBRESEAL_OFFLINE=1 to use cached data if available."
 		switch netErr.Kind {
 		case "dns":
 			return fmt.Sprintf("🗿 Network error: Could not resolve host '%s'%s", netErr.Host, offlineHint)
 		case "connection":
-			return "🗿 Network error: Could not connect to the Phase host" + offlineHint
+			return "🗿 Network error: Could not connect to the LibreSeal host" + offlineHint
 		case "timeout":
 			return "🗿 Network error: Request timed out" + offlineHint
 		default:
@@ -27,7 +27,7 @@ func FormatSDKError(err error) string {
 
 	var sslErr *network.SSLError
 	if errors.As(err, &sslErr) {
-		return fmt.Sprintf("🗿 SSL error: %s. You may set PHASE_VERIFY_SSL=False to bypass this check", sslErr.Detail)
+		return fmt.Sprintf("🗿 SSL error: %s. You may set LIBRESEAL_VERIFY_SSL=False to bypass this check", sslErr.Detail)
 	}
 
 	var authErr *network.AuthorizationError

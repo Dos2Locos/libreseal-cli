@@ -106,9 +106,9 @@ func runSecretsList(cmd *cobra.Command, args []string) error {
 		fmt.Fprintf(os.Stderr, "🤖 AI mode: some values may be [REDACTED] based on secret type. To view, the user should run this command directly in their terminal.\n")
 	}
 
-	fmt.Println("🔬 To view a secret, use: phase secrets get <key>")
+	fmt.Println("🔬 To view a secret, use: libreseal secrets get <key>")
 	if !show {
-		fmt.Println("🥽 To uncover the secrets, use: phase secrets list --show")
+		fmt.Println("🥽 To uncover the secrets, use: libreseal secrets list --show")
 	}
 	return nil
 }

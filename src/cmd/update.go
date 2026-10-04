@@ -3,65 +3,40 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"net/http"
-	"os"
-	"os/exec"
-	"runtime"
 
-	"github.com/phasehq/cli/pkg/util"
 	"github.com/spf13/cobra"
 )
 
+// Public LibreSeal CLI locations. Nothing is downloaded from these URLs by the
+// CLI itself: they are only printed or opened in the user's browser.
+const (
+	RepoURL = "https://github.com/Dos2Locos/libreseal-cli"
+	DocsURL = RepoURL + "#readme"
+)
+
 func init() {
-	if runtime.GOOS == "linux" {
-		updateCmd := &cobra.Command{
-			Use:   "update",
-			Short: "🆙 Update the Phase CLI to the latest version",
-			RunE:  runUpdate,
-		}
-		rootCmd.AddCommand(updateCmd)
+	updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "🆙 Show how to update the LibreSeal CLI",
+		Long: "Prints the steps to update the LibreSeal CLI from source. " +
+			"The CLI never downloads or executes installer scripts by itself.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			printUpdateInstructions(cmd.OutOrStdout())
+			return nil
+		},
 	}
+	rootCmd.AddCommand(updateCmd)
 }
 
-func runUpdate(cmd *cobra.Command, args []string) error {
-	fmt.Println("Updating Phase CLI...")
+func printUpdateInstructions(w io.Writer) {
+	fmt.Fprintf(w, `To update the LibreSeal CLI, rebuild it from a release tag of
+%s:
 
-	resp, err := http.Get("https://pkg.phase.dev/install.sh")
-	if err != nil {
-		return fmt.Errorf("failed to download install script: %w", err)
-	}
-	defer resp.Body.Close()
+  git clone %s.git   # or: git -C libreseal-cli fetch --tags
+  cd libreseal-cli
+  git checkout <tag>                 # e.g. the latest tag from 'git tag --sort=-v:refname'
+  ./scripts/install-from-source.sh
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to download install script: HTTP %d", resp.StatusCode)
-	}
-
-	tmpFile, err := os.CreateTemp("", "phase-install-*.sh")
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
-	}
-	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
-
-	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
-		tmpFile.Close()
-		return fmt.Errorf("failed to write install script: %w", err)
-	}
-	tmpFile.Close()
-
-	if err := os.Chmod(tmpPath, 0755); err != nil {
-		return fmt.Errorf("failed to make script executable: %w", err)
-	}
-
-	c := exec.Command(tmpPath)
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	c.Stdin = os.Stdin
-
-	if err := c.Run(); err != nil {
-		return fmt.Errorf("update failed: %w", err)
-	}
-
-	fmt.Println(util.BoldGreen("✅ Update completed successfully."))
-	return nil
+Release notes: %s/releases
+`, RepoURL, RepoURL, RepoURL)
 }
