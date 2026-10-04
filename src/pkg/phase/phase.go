@@ -18,7 +18,7 @@ import (
 	"github.com/phasehq/golang-sdk/v2/phase/network"
 )
 
-// Create new Phase client. Return host and token
+// Create new LibreSeal client. Return host and token
 func NewPhase(init bool, pss string, host string) (*sdk.Phase, error) {
 	if init {
 		creds, err := keyring.GetCredentials()
@@ -64,7 +64,7 @@ func setUserAgent() {
 			username = parts[len(parts)-1]
 		}
 	}
-	ua := fmt.Sprintf("phase-cli/%s %s %s %s@%s",
+	ua := fmt.Sprintf("libreseal-cli/%s %s %s %s@%s",
 		version.Version, runtime.GOOS, runtime.GOARCH, username, hostname)
 
 	if agent := ai.DetectAIAgent(); agent != "" {
@@ -77,7 +77,7 @@ func setUserAgent() {
 func Auth(p *sdk.Phase) error {
 	_, err := network.FetchAppKey(p.TokenType, p.AppToken, p.Host)
 	if err != nil {
-		return fmt.Errorf("invalid Phase credentials: %w", err)
+		return fmt.Errorf("invalid LibreSeal credentials: %w", err)
 	}
 	return nil
 }
@@ -205,7 +205,7 @@ func GetConfig(appName, envName, appID string) (string, string, string) {
 // active (PHASE_SERVICE_TOKEN), since the token identity may differ from the
 // config user and would pollute their cache.
 func getCacheDir() string {
-	if os.Getenv("PHASE_SERVICE_TOKEN") != "" {
+	if config.Env("SERVICE_TOKEN") != "" {
 		return ""
 	}
 	user, err := config.GetDefaultUser()

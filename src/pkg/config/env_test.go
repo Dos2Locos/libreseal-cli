@@ -48,3 +48,31 @@ func TestConfigureSSLVerification(t *testing.T) {
 		})
 	}
 }
+
+func TestEnvPrefersLibresealPrefix(t *testing.T) {
+	t.Setenv("LIBRESEAL_SERVICE_TOKEN", "ls-token")
+	t.Setenv("PHASE_SERVICE_TOKEN", "phase-token")
+	if got := Env("SERVICE_TOKEN"); got != "ls-token" {
+		t.Fatalf("Env(SERVICE_TOKEN) = %q, want LIBRESEAL_ value", got)
+	}
+}
+
+func TestEnvFallsBackToPhasePrefix(t *testing.T) {
+	t.Setenv("LIBRESEAL_HOST", "")
+	t.Setenv("PHASE_HOST", "https://legacy.example.com")
+	if got := Env("HOST"); got != "https://legacy.example.com" {
+		t.Fatalf("Env(HOST) = %q, want PHASE_ fallback", got)
+	}
+}
+
+func TestConfigureSSLVerificationHonoursLibresealVariable(t *testing.T) {
+	t.Setenv("PHASE_VERIFY_SSL", "")
+	t.Setenv("LIBRESEAL_VERIFY_SSL", "False")
+	orig := misc.VerifySSL
+	t.Cleanup(func() { misc.VerifySSL = orig })
+	misc.VerifySSL = true
+	ConfigureSSLVerification()
+	if misc.VerifySSL {
+		t.Fatal("LIBRESEAL_VERIFY_SSL=False should disable verification")
+	}
+}

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"strings"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -71,16 +72,33 @@ func TestGetDefaultUserHost_PHASEHOSTOverridesConfig(t *testing.T) {
 	}
 }
 
-func TestGetDefaultUserHost_ServiceTokenDefaultsToCloud(t *testing.T) {
+func TestGetDefaultUserHost_ServiceTokenWithoutHostFails(t *testing.T) {
+	// LibreSeal has no default cloud host: a service token without a host
+	// must fail instead of silently contacting a third-party service.
+	t.Setenv("LIBRESEAL_HOST", "")
 	t.Setenv("PHASE_HOST", "")
+	t.Setenv("LIBRESEAL_SERVICE_TOKEN", "")
 	t.Setenv("PHASE_SERVICE_TOKEN", "pss_service:v1:sometoken")
+
+	host, err := GetDefaultUserHost()
+	if err == nil {
+		t.Fatalf("expected an error, got host %q", host)
+	}
+	if !strings.Contains(err.Error(), "LIBRESEAL_HOST") {
+		t.Fatalf("error should mention LIBRESEAL_HOST, got: %v", err)
+	}
+}
+
+func TestGetDefaultUserHost_LibresealHostWinsOverPhaseHost(t *testing.T) {
+	t.Setenv("LIBRESEAL_HOST", "https://libreseal.example.com")
+	t.Setenv("PHASE_HOST", "https://legacy.example.com")
 
 	host, err := GetDefaultUserHost()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if host != PhaseCloudAPIHost {
-		t.Fatalf("got %s, want cloud host for service token with no PHASE_HOST", host)
+	if host != "https://libreseal.example.com" {
+		t.Fatalf("got %s, want LIBRESEAL_HOST to take precedence", host)
 	}
 }
 

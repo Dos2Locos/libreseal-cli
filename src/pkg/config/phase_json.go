@@ -18,7 +18,7 @@ type PhaseJSONConfig struct {
 
 func FindPhaseConfig(maxDepth int) *PhaseJSONConfig {
 	// Check env var override for search depth
-	if envDepth := os.Getenv("PHASE_CONFIG_PARENT_DIR_SEARCH_DEPTH"); envDepth != "" {
+	if envDepth := Env("CONFIG_PARENT_DIR_SEARCH_DEPTH"); envDepth != "" {
 		if d, err := strconv.Atoi(envDepth); err == nil {
 			maxDepth = d
 		}
