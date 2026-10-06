@@ -45,7 +45,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	command := strings.Join(args, " ")
 	if ai.IsAIAgent() {
 		if blocked, ok := ai.IsBlockedCommand(command); ok {
-			return fmt.Errorf("command '%s' is blocked in AI mode to prevent secret exposure via environment variables. Use 'phase secrets get <key>' instead", blocked)
+			return fmt.Errorf("command '%s' is blocked in AI mode to prevent secret exposure via environment variables. Use 'libreseal secrets get <key>' instead", blocked)
 		}
 	}
 

@@ -9,7 +9,7 @@ import (
 
 var usersKeyringCmd = &cobra.Command{
 	Use:   "keyring",
-	Short: "🔐 Display information about the Phase keyring",
+	Short: "🔐 Display information about the LibreSeal keyring",
 	RunE:  runUsersKeyring,
 }
 

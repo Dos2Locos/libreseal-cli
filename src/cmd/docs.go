@@ -9,7 +9,7 @@ import (
 
 var docsCmd = &cobra.Command{
 	Use:   "docs",
-	Short: "📖 Open the Phase CLI Docs in your browser",
+	Short: "📖 Open the LibreSeal CLI documentation in your browser",
 	RunE:  runDocs,
 }
 
@@ -18,7 +18,7 @@ func init() {
 }
 
 func runDocs(cmd *cobra.Command, args []string) error {
-	url := "https://docs.phase.dev/cli/commands"
+	url := DocsURL
 	fmt.Printf("Opening %s\n", url)
 	return util.OpenBrowser(url)
 }

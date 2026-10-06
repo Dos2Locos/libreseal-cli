@@ -17,7 +17,7 @@ import (
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "💻 Authenticate with Phase",
+	Short: "💻 Authenticate with LibreSeal",
 	RunE:  runAuth,
 }
 
@@ -34,37 +34,25 @@ func init() {
 
 func runAuth(cmd *cobra.Command, args []string) error {
 	// Determine host
-	host := os.Getenv("PHASE_HOST")
+	host := config.Env("HOST")
 	if host == "" {
-		prompt := promptui.Select{
-			Label: "Choose your Phase instance type",
-			Items: []string{"☁️  Phase Cloud", "🛠️  Self Hosted"},
+		hostPrompt := promptui.Prompt{
+			Label: "LibreSeal server URL (e.g. https://secrets.example.com)",
 		}
-		idx, _, err := prompt.Run()
+		var err error
+		host, err = hostPrompt.Run()
 		if err != nil {
 			return fmt.Errorf("prompt cancelled")
 		}
-
-		if idx == 1 {
-			hostPrompt := promptui.Prompt{
-				Label: "Please enter your host (URL eg. https://example.com)",
-			}
-			host, err = hostPrompt.Run()
-			if err != nil {
-				return fmt.Errorf("prompt cancelled")
-			}
-			host = strings.TrimSpace(host)
-			if host == "" {
-				return fmt.Errorf("host URL is required for self-hosted instances")
-			}
-			if !util.ValidateURL(host) {
-				return fmt.Errorf("invalid URL. Please ensure you include the scheme (e.g., https) and domain. Keep in mind, path and port are optional")
-			}
-		} else {
-			host = config.PhaseCloudAPIHost
+		host = strings.TrimSpace(host)
+		if host == "" {
+			return fmt.Errorf("the LibreSeal server URL is required (or set LIBRESEAL_HOST)")
+		}
+		if !util.ValidateURL(host) {
+			return fmt.Errorf("invalid URL. Please ensure you include the scheme (e.g., https) and domain. Keep in mind, path and port are optional")
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, "Using PHASE_HOST environment variable: %s\n", host)
+		fmt.Fprintf(os.Stderr, "Using LIBRESEAL_HOST/PHASE_HOST environment variable: %s\n", host)
 	}
 
 	switch authMode {

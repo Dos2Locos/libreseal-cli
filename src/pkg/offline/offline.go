@@ -13,6 +13,9 @@ func CacheDir(secretsDir, accountID string) string {
 
 // IsOffline returns true if PHASE_OFFLINE is set to "1" or "true".
 func IsOffline() bool {
-	v := os.Getenv("PHASE_OFFLINE")
+	v := os.Getenv("LIBRESEAL_OFFLINE")
+	if v == "" {
+		v = os.Getenv("PHASE_OFFLINE")
+	}
 	return v == "1" || strings.EqualFold(v, "true")
 }

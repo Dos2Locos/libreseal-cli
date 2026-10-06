@@ -2,7 +2,6 @@ package keyring
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/phasehq/cli/pkg/config"
 	gokeyring "github.com/zalando/go-keyring"
@@ -10,7 +9,7 @@ import (
 
 func GetCredentials() (string, error) {
 	// 1. Check PHASE_SERVICE_TOKEN env var
-	if pss := os.Getenv("PHASE_SERVICE_TOKEN"); pss != "" {
+	if pss := config.Env("SERVICE_TOKEN"); pss != "" {
 		return pss, nil
 	}
 
@@ -23,6 +22,8 @@ func GetCredentials() (string, error) {
 		return "", fmt.Errorf("no default account configured")
 	}
 	accountID := ids[0]
+	// Keyring entries keep the upstream "phase-cli-user-" prefix so existing
+	// logins from the Phase CLI keep working (shared credential store).
 	serviceName := fmt.Sprintf("phase-cli-user-%s", accountID)
 
 	pss, err := gokeyring.Get(serviceName, "pss")

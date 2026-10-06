@@ -10,7 +10,7 @@ import (
 	"github.com/phasehq/cli/pkg/version"
 )
 
-//go:embed PHASE.md
+//go:embed LIBRESEAL.md
 var skillContent string
 
 // SkillTarget represents an AI tool that can receive the skill doc.
@@ -27,7 +27,7 @@ func SkillVersion() string {
 
 // versionHeader returns the version comment used to detect installed skill docs.
 func versionHeader() string {
-	return fmt.Sprintf("<!-- phase-cli-skill-version: %s -->", SkillVersion())
+	return fmt.Sprintf("<!-- libreseal-cli-skill-version: %s -->", SkillVersion())
 }
 
 // SkillContent returns the full skill doc with version header (plain markdown).
@@ -38,12 +38,12 @@ func SkillContent() string {
 // claudeCodeSkill wraps the skill content with Claude Code SKILL.md frontmatter.
 func claudeCodeSkill() string {
 	return fmt.Sprintf(`---
-name: phase-cli
+name: libreseal-cli
 description: |
-  Phase CLI — secrets and environment variable management.
+  LibreSeal CLI — secrets and environment variable management.
   Use when: managing secrets, environment variables, sealed secrets,
-  dynamic credentials, secret rotation, importing .env files,
-  running apps with injected secrets, phase run, phase init, phase auth.
+  self-hosted LibreSeal servers, importing .env files,
+  running apps with injected secrets, libreseal run, libreseal init, libreseal auth.
 user-invocable: true
 ---
 
@@ -54,12 +54,12 @@ user-invocable: true
 // cursorSkill wraps the skill content with Cursor's SKILL.md frontmatter.
 func cursorSkill() string {
 	return fmt.Sprintf(`---
-name: phase-cli
+name: libreseal-cli
 description: |
-  Phase CLI — secrets and environment variable management.
+  LibreSeal CLI — secrets and environment variable management.
   Use when: managing secrets, environment variables, sealed secrets,
-  dynamic credentials, secret rotation, importing .env files,
-  running apps with injected secrets, phase run, phase init, phase auth.
+  self-hosted LibreSeal servers, importing .env files,
+  running apps with injected secrets, libreseal run, libreseal init, libreseal auth.
 ---
 
 %s
@@ -74,16 +74,16 @@ func SkillTargets() []SkillTarget {
 	}
 
 	return []SkillTarget{
-		// Claude Code: ~/.claude/skills/phase-cli/SKILL.md — user-invocable via /phase-cli
-		{Name: "Claude Code", Path: filepath.Join(home, ".claude", "skills", "phase-cli", "SKILL.md"), Note: "global"},
-		// Cursor: ~/.cursor/skills/phase-cli/SKILL.md — auto-discovered, also reads ~/.claude/skills/ and ~/.agents/skills/
-		{Name: "Cursor", Path: filepath.Join(home, ".cursor", "skills", "phase-cli", "SKILL.md"), Note: "global"},
-		// VS Code Copilot: ~/.copilot/skills/phase-cli/SKILL.md — also reads ~/.claude/skills/ and ~/.agents/skills/
-		{Name: "VS Code Copilot", Path: filepath.Join(home, ".copilot", "skills", "phase-cli", "SKILL.md"), Note: "global"},
-		// Codex: ~/.agents/skills/phase-cli/SKILL.md — user-level, also read by Cursor/Copilot/OpenCode as fallback
-		{Name: "Codex", Path: filepath.Join(home, ".agents", "skills", "phase-cli", "SKILL.md"), Note: "global"},
-		// OpenCode: ~/.config/opencode/skills/phase-cli/SKILL.md — also reads ~/.claude/skills/ and ~/.agents/skills/
-		{Name: "OpenCode", Path: filepath.Join(home, ".config", "opencode", "skills", "phase-cli", "SKILL.md"), Note: "global"},
+		// Claude Code: ~/.claude/skills/libreseal-cli/SKILL.md — user-invocable via /libreseal-cli
+		{Name: "Claude Code", Path: filepath.Join(home, ".claude", "skills", "libreseal-cli", "SKILL.md"), Note: "global"},
+		// Cursor: ~/.cursor/skills/libreseal-cli/SKILL.md — auto-discovered, also reads ~/.claude/skills/ and ~/.agents/skills/
+		{Name: "Cursor", Path: filepath.Join(home, ".cursor", "skills", "libreseal-cli", "SKILL.md"), Note: "global"},
+		// VS Code Copilot: ~/.copilot/skills/libreseal-cli/SKILL.md — also reads ~/.claude/skills/ and ~/.agents/skills/
+		{Name: "VS Code Copilot", Path: filepath.Join(home, ".copilot", "skills", "libreseal-cli", "SKILL.md"), Note: "global"},
+		// Codex: ~/.agents/skills/libreseal-cli/SKILL.md — user-level, also read by Cursor/Copilot/OpenCode as fallback
+		{Name: "Codex", Path: filepath.Join(home, ".agents", "skills", "libreseal-cli", "SKILL.md"), Note: "global"},
+		// OpenCode: ~/.config/opencode/skills/libreseal-cli/SKILL.md — also reads ~/.claude/skills/ and ~/.agents/skills/
+		{Name: "OpenCode", Path: filepath.Join(home, ".config", "opencode", "skills", "libreseal-cli", "SKILL.md"), Note: "global"},
 	}
 }
 
@@ -117,7 +117,7 @@ func UninstallSkill() []string {
 	targets := SkillTargets()
 	var removed []string
 	for _, t := range targets {
-		// Remove the entire skill directory (e.g. ~/.claude/skills/phase-cli/)
+		// Remove the entire skill directory (e.g. ~/.claude/skills/libreseal-cli/)
 		skillDir := filepath.Dir(t.Path)
 		if _, err := os.Stat(skillDir); err != nil {
 			continue // skip if doesn't exist

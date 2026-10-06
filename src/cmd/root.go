@@ -10,30 +10,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const phaseASCii = `
-             /$$
-            | $$
-    /$$$$$$ | $$$$$$$   /$$$$$$   /$$$$$$$  /$$$$$$
-   /$$__  $$| $$__  $$ |____  $$ /$$_____/ /$$__  $$
-  | $$  \ $$| $$  \ $$  /$$$$$$$|  $$$$$$ | $$$$$$$$
-  | $$  | $$| $$  | $$ /$$__  $$ \____  $$| $$_____/
-  | $$$$$$$/| $$  | $$|  $$$$$$$ /$$$$$$$/|  $$$$$$$
-  | $$____/ |__/  |__/ \_______/|_______/  \_______/
-  | $$
-  |__/
+const libresealBanner = `
+  LibreSeal CLI — free, self-hosted secrets management.
+  Independent fork of the Phase CLI; not affiliated with Phase.
 `
 
-const description = "Keep Secrets."
+const description = "LibreSeal: keep secrets on your own server."
 
 var rootCmd = &cobra.Command{
-	Use:           "phase",
+	Use:           "libreseal",
 	Short:         description,
-	Long:          description + "\n" + phaseASCii,
+	Long:          description + "\n" + libresealBanner,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
 func Execute() {
+	wrapDynamicSecretsErrors(dynamicSecretsCmd)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", phaseerrors.FormatSDKError(err))
 		os.Exit(1)
@@ -43,7 +36,7 @@ func Execute() {
 func init() {
 	// Honor PHASE_VERIFY_SSL=False before any command runs so it applies to
 	// every network call — including pre-auth flows like
-	// `phase auth --mode aws-iam` / `--mode azure` that don't go through
+	// `libreseal auth --mode aws-iam` / `--mode azure` that don't go through
 	// NewPhase(). The SDK caches its HTTP client on first use, so this must
 	// happen before any request is made.
 	config.ConfigureSSLVerification()

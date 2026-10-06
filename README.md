@@ -1,214 +1,121 @@
-# phase cli
+# libreseal — LibreSeal CLI
 
-```
-λ phase --help
-Keep Secrets.
+`libreseal` is the command-line client for [LibreSeal](https://github.com/Dos2Locos/libreseal), a free, self-hosted secrets manager. It authenticates against **your own** LibreSeal server, manages secrets per app and environment, and injects them into processes without writing them to disk.
 
-             /$$
-            | $$
-    /$$$$$$ | $$$$$$$   /$$$$$$   /$$$$$$$  /$$$$$$
-   /$$__  $$| $$__  $$ |____  $$ /$$_____/ /$$__  $$
-  | $$  \ $$| $$  \ $$  /$$$$$$$|  $$$$$$ | $$$$$$$$
-  | $$  | $$| $$  | $$ /$$__  $$ \____  $$| $$_____/
-  | $$$$$$$/| $$  | $$|  $$$$$$$ /$$$$$$$/|  $$$$$$$
-  | $$____/ |__/  |__/ \_______/|_______/  \_______/
-  | $$
-  |__/
+> LibreSeal CLI is an independent fork of the [Phase CLI](https://github.com/phasehq/cli). It is **not affiliated with or endorsed by Phase / Phi Security Inc.** It has no default cloud host and never downloads installers from third-party infrastructure.
 
-Commands:
-  auth                              💻 Authenticate with Phase
-  init                              🔗 Link your project with your Phase app
-  run                               🚀 Run and inject secrets to your app
-  shell                             🐚 Launch a sub-shell with secrets as environment variables
-  apps list                         📱 List available apps and their environments
-  secrets list                      📇 List all the secrets
-  secrets get                       🔍 Fetch details about one or more secrets in JSON
-  secrets create                    💳 Create a new secret
-  secrets update                    📝 Update an existing secret
-  secrets delete                    🗑️ Delete secrets
-  secrets import                    📩 Import secrets from a .env file
-  secrets export                    🥡 Export secrets in a specific format
-  dynamic-secrets list              📇 List dynamic secrets & metadata
-  dynamic-secrets lease generate    ✨ Generate a lease (create fresh dynamic secret)
-  dynamic-secrets lease get         🔍 Get leases for a dynamic secret
-  dynamic-secrets lease renew       🔁 Renew a lease
-  dynamic-secrets lease revoke      🗑️ Revoke a lease
-  users whoami                      🙋 See details of the current user
-  users switch                      🪄 Switch between Phase users, orgs and hosts
-  users logout                      🏃 Logout from phase-cli
-  users keyring                     🔐 Display information about the Phase keyring
-  ai enable                         🪄 Enable AI integrations and configure secret visibility
-  ai disable                        🚫 Disable AI integrations and remove skill docs
-  ai skill                          📄 Print the Phase AI skill document
-  console                           🖥️ Open the Phase Console in your browser
-  docs                              📖 Open the Phase CLI Docs in your browser
-  completion                        ⌨️ Generate the autocompletion script for the specified shell
+## Install
 
-Flags:
-  -h, --help      help for phase
-  -v, --version   version for phase
+The CLI is built from source (no pre-built packages are published yet). You need [Go](https://go.dev/dl/) 1.25 or newer.
+
+```sh
+git clone https://github.com/Dos2Locos/libreseal-cli.git
+cd libreseal-cli
+./scripts/install-from-source.sh                 # installs /usr/local/bin/libreseal (sudo if needed)
+# or, without sudo:
+PREFIX="$HOME/.local" ./scripts/install-from-source.sh
+libreseal --version
 ```
 
-## Features
+Container image (built locally):
 
-- **End-to-end encryption** — secrets are encrypted client-side before leaving your machine
-- **Secret types** — `config` (non-sensitive), `secret` (sensitive), and `sealed` (write-only) with enforced visibility rules
-- **`phase run`** — inject secrets as environment variables into any command without code changes
-- **`phase shell`** — launch a sub-shell (bash, zsh, fish, etc.) with secrets preloaded
-- **Dynamic secrets** — generate short-lived credentials (e.g. AWS IAM) with automatic lease management (generate, renew, revoke)
-- **Secret references** — reference secrets across environments and apps, resolved automatically at runtime
-- **Personal overrides** — override shared secrets locally without affecting your team
-- **Import / Export** — import from `.env` files; export to dotenv, JSON, YAML, TOML, CSV, XML, HCL, INI, Java properties, and more
-- **Path-based organisation** — organise secrets in hierarchical paths for monorepos and microservices
-- **Tagging** — tag secrets and filter operations by tag
-- **Random secret generation** — generate hex, alphanumeric, base64, base64url, 128-bit, or 256-bit keys on create or update
-- **AI agent integration** — skill-based integration with Claude Code, Cursor, VS Code Copilot, Codex, and OpenCode with automatic value redaction and safety guardrails
-- **Multiple auth methods** — web-based login, personal access tokens, service account tokens, and AWS IAM identity auth
-- **Multi-user & multi-org** — switch between Phase accounts, orgs, and self-hosted instances
-- **OS keyring integration** — credentials stored in macOS Keychain, GNOME Keyring, or Windows Credential Manager
-- **Multiple environments** — dev, staging, production, and custom environments with per-project defaults via `phase init`
-
-## Installation
-
-You can install Phase CLI using curl:
-
-```bash
-curl -fsSL https://pkg.phase.dev/install.sh | bash
+```sh
+docker build -t libreseal-cli .
+docker run --rm -e LIBRESEAL_HOST -e LIBRESEAL_SERVICE_TOKEN libreseal-cli apps list
 ```
 
-## Usage
+## Update
 
-### Prerequisites
+`libreseal update` only prints instructions; it never fetches or runs scripts. To update, check out a newer tag and rerun the installer:
 
-- Create an app in the [Phase Console](https://console.phase.dev)
-
-### Login
-
-```bash
-phase auth
+```sh
+cd libreseal-cli && git fetch --tags
+git checkout <tag>
+./scripts/install-from-source.sh
 ```
 
-### Initialize
+## Configure
 
-Link the Phase CLI to your project:
+### Interactive users
 
-```bash
-phase init
+```sh
+libreseal auth                    # prompts for your server URL, then opens the browser (webauth)
+libreseal auth --mode token       # paste a personal access token instead
+libreseal users whoami
 ```
 
-Or non-interactively:
+### Applications, CI and AI agents (recommended)
 
-```bash
-phase apps list                                    # find your app ID
-phase init --app-id "your-app-id" --env Development
+Create a **service account** in the LibreSeal UI (Access → Service Accounts) with access only to the apps and environments it needs, generate a token, and provide it through the environment:
+
+```sh
+export LIBRESEAL_HOST=https://secrets.example.lan
+export LIBRESEAL_SERVICE_TOKEN='pss_service:v2:...'   # never commit or echo this
+libreseal apps list
 ```
 
-### Import .env (optional)
+| Variable | Purpose |
+|----------|---------|
+| `LIBRESEAL_HOST` | Server URL (required with a service token; there is no default host) |
+| `LIBRESEAL_SERVICE_TOKEN` | Service account (or personal) token for headless use |
+| `LIBRESEAL_VERIFY_SSL` | `False` disables TLS verification — only for local test instances with self-signed certificates |
+| `LIBRESEAL_OFFLINE` | `1` serves cached data when the server is unreachable |
+| `LIBRESEAL_CONFIG_PARENT_DIR_SEARCH_DEPTH` | How many parent directories to search for `.phase.json` |
 
-Import and encrypt existing secrets and environment variables:
+## Use
 
-```bash
-phase secrets import .env
+```sh
+libreseal apps list                                   # apps, IDs and environments
+libreseal init --app-id <APP_ID> --env development    # link this directory (.phase.json)
+
+libreseal secrets create DB_PASSWORD --random base64url --length 48 --type sealed
+echo "8080" | libreseal secrets create PORT --type config
+libreseal secrets list
+libreseal secrets get PORT
+libreseal secrets update DB_PASSWORD --random hex --length 64
+libreseal secrets delete PORT
+
+libreseal secrets import .env --env development
+libreseal secrets export --env development --format json
+
+libreseal run 'npm start'                             # inject secrets into a process
+libreseal run --env production --tags backend './start.sh'
 ```
 
-### List / view secrets
+Run `libreseal <command> --help` for all flags.
 
-```bash
-phase secrets list --show
-```
+## AI agents
 
-### Run and inject secrets
+`libreseal ai enable` (run by a human) installs a skill document for Claude Code, Cursor, Copilot, Codex or OpenCode; `libreseal ai skill` prints it. When the CLI detects an AI agent it blocks `printenv`/`env`/`export`/`set`/`declare`/`compgen` inside `libreseal run` and disables `libreseal shell`. Detection relies on agent-set environment variables and is defence in depth only: give agents a least-privilege service account token and store sensitive values as `sealed`. See also [libreseal-skills](https://github.com/Dos2Locos/libreseal-skills).
 
-```bash
-phase run 'npm start'
-phase run 'go run main.go'
-phase run --env production 'python manage.py runserver'
-```
+## Compatibility with the Phase CLI
 
-### AI integration
+| Item | Behaviour |
+|------|-----------|
+| Command name | `libreseal` (same subcommands and flags as `phase`) |
+| Environment variables | `PHASE_HOST`, `PHASE_SERVICE_TOKEN`, `PHASE_VERIFY_SSL`, `PHASE_OFFLINE` and `PHASE_CONFIG_PARENT_DIR_SEARCH_DEPTH` are accepted; `LIBRESEAL_*` takes precedence |
+| Project link file | `.phase.json` (unchanged) |
+| Local config | `~/.phase/secrets/config.json` and the `phase-cli-user-*` keyring entries are shared with the Phase CLI |
+| Default host | **Breaking:** none. `phase` defaulted to Phase Cloud; `libreseal` requires your server URL |
+| `update` | **Breaking:** prints instructions instead of running `pkg.phase.dev/install.sh` |
+| `dynamic-secrets` | Reports that the feature is unavailable: LibreSeal servers do not implement dynamic secrets |
+| Go module path | Still `github.com/phasehq/cli` to keep the diff with upstream small |
 
-Enable AI agent support (installs a skill doc for your AI coding tool):
+The server API and token formats are unchanged. `libreseal` is verified against LibreSeal servers; using it against Phase servers (or `phase` against LibreSeal) is expected to work but is not tested.
 
-```bash
-phase ai enable
-```
+## Verified combination
 
-This installs the Phase skill to your chosen AI tool (Claude Code, Cursor, VS Code Copilot, Codex, or OpenCode) and configures secret visibility. Sealed secrets are never revealed to AI agents regardless of settings.
+See the [LibreSeal README](https://github.com/Dos2Locos/libreseal#compatibility-and-limitations) for the server / CLI / skills versions verified together.
 
 ## Development
 
-### Prerequisites
-
-- [Go](https://go.dev/dl/) 1.25 or later
-
-### Project structure
-
-```
-src/
-├── main.go          # Entrypoint
-├── cmd/             # Cobra command definitions
-├── pkg/
-│   ├── ai/          # AI agent detection, skill doc, redaction
-│   ├── config/      # Config file handling (~/.phase/, .phase.json)
-│   ├── display/     # Output formatting (tree view, tables)
-│   ├── errors/      # Error types
-│   ├── keyring/     # OS keyring integration
-│   ├── phase/       # Phase client helpers (auth, init)
-│   ├── util/        # Misc utilities (color, spinner, browser)
-│   └── version/     # Version constant
-└── go.mod
-```
-
-### Run from source
-
-```bash
+```sh
 cd src
-go run main.go --help
-```
-
-### Build a binary
-
-```bash
-cd src
-go build -o phase .
-./phase --version
-```
-
-You can set the version at build time with `-ldflags`:
-
-```bash
-go build -ldflags "-X github.com/phasehq/cli/pkg/version.Version=2.0.0" -o phase .
-```
-
-### Install locally (development)
-
-Build and install to `/usr/local/bin` so `phase` is available globally:
-
-```bash
-cd src
-sudo go build -o /usr/local/bin/phase .
-phase --version
-```
-
-Or if `$GOPATH/bin` is in your `$PATH`:
-
-```bash
-cd src
-go build -o $(go env GOPATH)/bin/phase .
-```
-
-### Run tests
-
-```bash
-cd src
+go vet ./...
 go test ./...
+go build -o libreseal .
 ```
 
-### Local SDK development
+## License
 
-The CLI uses the Phase Go SDK via a `replace` directive in `go.mod`. To develop against a local copy of the SDK:
-
-```go
-// go.mod
-replace github.com/phasehq/golang-sdk/v2 => /path/to/your/golang-sdk
-```
+GPL-3.0, see [LICENSE](LICENSE). Copyright of the original work belongs to Phase and its contributors; LibreSeal modifications are also released under GPL-3.0.

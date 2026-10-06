@@ -9,8 +9,8 @@ import (
 
 var aiSkillCmd = &cobra.Command{
 	Use:   "skill",
-	Short: "📄 Print the Phase AI skill document to stdout",
-	Long:  "Dumps the raw Phase AI skill markdown to stdout. Pipe it wherever you need: a file, clipboard, or another tool's config.",
+	Short: "📄 Print the LibreSeal AI skill document to stdout",
+	Long:  "Dumps the raw LibreSeal AI skill markdown to stdout. Pipe it wherever you need: a file, clipboard, or another tool's config.",
 	RunE:  runAISkill,
 }
 

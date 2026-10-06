@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	PhaseCloudAPIHost = "https://console.phase.dev"
-	PhaseEnvConfig    = ".phase.json"
+	// PhaseEnvConfig is the per-project link file. The name is kept for
+	// compatibility with projects initialised by the upstream Phase CLI.
+	PhaseEnvConfig = ".phase.json"
 )
 
 var (
@@ -66,7 +67,7 @@ func SaveConfig(config *Config) error {
 func GetDefaultUser() (*UserConfig, error) {
 	config, err := LoadConfig()
 	if err != nil {
-		return nil, fmt.Errorf("please login with phase auth or supply a PHASE_SERVICE_TOKEN as an environment variable")
+		return nil, fmt.Errorf("please login with 'libreseal auth' or set LIBRESEAL_HOST and LIBRESEAL_SERVICE_TOKEN")
 	}
 	if config.DefaultUser == "" {
 		return nil, fmt.Errorf("no default user set")
@@ -82,7 +83,7 @@ func GetDefaultUser() (*UserConfig, error) {
 func GetDefaultAccountID(allIDs bool) ([]string, error) {
 	config, err := LoadConfig()
 	if err != nil {
-		return nil, fmt.Errorf("please login with phase auth or supply a PHASE_SERVICE_TOKEN as an environment variable")
+		return nil, fmt.Errorf("please login with 'libreseal auth' or set LIBRESEAL_HOST and LIBRESEAL_SERVICE_TOKEN")
 	}
 	if allIDs {
 		var ids []string
@@ -95,17 +96,17 @@ func GetDefaultAccountID(allIDs bool) ([]string, error) {
 }
 
 func GetDefaultUserHost() (string, error) {
-	if host := os.Getenv("PHASE_HOST"); host != "" {
+	if host := Env("HOST"); host != "" {
 		return host, nil
 	}
 
-	if os.Getenv("PHASE_SERVICE_TOKEN") != "" {
-		return PhaseCloudAPIHost, nil
+	if Env("SERVICE_TOKEN") != "" {
+		return "", fmt.Errorf("LIBRESEAL_HOST (or PHASE_HOST) must be set when using a service token from the environment")
 	}
 
 	config, err := LoadConfig()
 	if err != nil {
-		return "", fmt.Errorf("config file not found and no PHASE_SERVICE_TOKEN environment variable set")
+		return "", fmt.Errorf("config file not found: run 'libreseal auth' or set LIBRESEAL_HOST and LIBRESEAL_SERVICE_TOKEN")
 	}
 
 	for _, user := range config.PhaseUsers {
@@ -119,7 +120,7 @@ func GetDefaultUserHost() (string, error) {
 func GetDefaultUserToken() (string, error) {
 	config, err := LoadConfig()
 	if err != nil {
-		return "", fmt.Errorf("config file not found. Please login with phase auth or supply a PHASE_SERVICE_TOKEN as an environment variable")
+		return "", fmt.Errorf("config file not found. Please login with 'libreseal auth' or set LIBRESEAL_HOST and LIBRESEAL_SERVICE_TOKEN")
 	}
 	if config.DefaultUser == "" {
 		return "", fmt.Errorf("default user ID is missing in the config file")

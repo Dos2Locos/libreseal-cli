@@ -6,8 +6,8 @@ import (
 
 var aiCmd = &cobra.Command{
 	Use:   "ai",
-	Short: "🥷  Integrate Phase with AI Agents",
-	Long:  "Configure how AI coding agents interact with your Phase secrets.",
+	Short: "🥷  Integrate LibreSeal with AI Agents",
+	Long:  "Configure how AI coding agents interact with your LibreSeal secrets.",
 }
 
 func init() {

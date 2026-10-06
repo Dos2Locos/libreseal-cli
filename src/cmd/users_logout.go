@@ -13,7 +13,7 @@ import (
 
 var usersLogoutCmd = &cobra.Command{
 	Use:   "logout",
-	Short: "🏃 Logout from phase-cli",
+	Short: "🏃 Logout from the LibreSeal CLI",
 	RunE:  runUsersLogout,
 }
 
@@ -47,7 +47,7 @@ func runUsersLogout(cmd *cobra.Command, args []string) error {
 		// Remove current user
 		ids, err := config.GetDefaultAccountID(false)
 		if err != nil {
-			return fmt.Errorf("no configuration found. Please run 'phase auth' to set up your configuration")
+			return fmt.Errorf("no configuration found. Please run 'libreseal auth' to set up your configuration")
 		}
 		if len(ids) == 0 || ids[0] == "" {
 			return fmt.Errorf("no default user in configuration found")
