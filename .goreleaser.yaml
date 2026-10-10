@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# LibreSeal CLI release configuration. Publishing to package managers is not
-# configured yet; releases only attach binaries to Dos2Locos/libreseal-cli.
+# LibreSeal CLI release configuration, run by .github/workflows/release.yml on
+# vX.Y.Z tags. Publishing to package managers is not configured; releases only
+# attach binaries to a draft release of Dos2Locos/libreseal-cli.
 version: 2
 
 project_name: libreseal
@@ -41,10 +42,27 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
+# Keyless cosign signature of checksums.txt with the release workflow's OIDC
+# identity; users verify it with `cosign verify-blob --bundle` (see README).
+signs:
+  - id: checksums
+    cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+
 release:
   github:
     owner: Dos2Locos
     name: libreseal-cli
   draft: true
+  # GPL-3.0: ship the license next to the binaries (GitHub attaches the
+  # tag's source code to every release).
+  extra_files:
+    - glob: ./LICENSE
   prerelease: auto
   name_template: "v{{ .Version }}"
