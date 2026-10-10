@@ -14,7 +14,7 @@ DEST="${DEST:-/usr/local/bin}"
 
 command -v go >/dev/null 2>&1 || { echo "Go is required: https://go.dev/dl/" >&2; exit 1; }
 
-VERSION="$(git -C "$ROOT" describe --tags --always --dirty 2>/dev/null || echo dev)"
+VERSION="$(git -C "$ROOT" describe --tags --match 'v[0-9]*' --always --dirty 2>/dev/null || echo dev)"
 VERSION="${VERSION#v}"
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
