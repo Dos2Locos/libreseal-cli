@@ -6,7 +6,25 @@
 
 ## Install
 
-The CLI is built from source (no pre-built packages are published yet). You need [Go](https://go.dev/dl/) 1.25 or newer.
+### From a release binary
+
+Each [release](https://github.com/Dos2Locos/libreseal-cli/releases) has one binary per platform (`libreseal_<version>_<os>_<arch>`, `.exe` on Windows), `checksums.txt`, its keyless cosign signature `checksums.txt.sigstore.json` (made by this repository's release workflow) and `LICENSE`. Verify before installing (needs [cosign](https://docs.sigstore.dev/cosign/system_config/installation/)); replace `X.Y.Z` and the platform:
+
+```sh
+base=https://github.com/Dos2Locos/libreseal-cli/releases/download/vX.Y.Z
+bin=libreseal_X.Y.Z_linux_amd64                  # or darwin_arm64, windows_amd64.exe, …
+curl -fLO "$base/$bin" -fLO "$base/checksums.txt" -fLO "$base/checksums.txt.sigstore.json"
+cosign verify-blob checksums.txt --bundle checksums.txt.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/Dos2Locos/libreseal-cli/.github/workflows/release.yml@refs/tags/v' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+sha256sum -c checksums.txt --ignore-missing      # macOS: shasum -a 256 -c checksums.txt --ignore-missing
+install -m 0755 "$bin" ~/.local/bin/libreseal    # or /usr/local/bin with sudo
+libreseal --version
+```
+
+### From source
+
+You need [Go](https://go.dev/dl/) 1.25 or newer.
 
 ```sh
 git clone https://github.com/Dos2Locos/libreseal-cli.git
@@ -26,7 +44,7 @@ docker run --rm -e LIBRESEAL_HOST -e LIBRESEAL_SERVICE_TOKEN libreseal-cli apps 
 
 ## Update
 
-`libreseal update` only prints instructions; it never fetches or runs scripts. To update, check out a newer tag and rerun the installer:
+`libreseal update` only prints instructions; it never fetches, runs or replaces anything. Install a newer release binary as above, or check out a newer tag and rerun the installer:
 
 ```sh
 cd libreseal-cli && git fetch --tags
@@ -115,6 +133,12 @@ go vet ./...
 go test ./...
 go build -o libreseal .
 ```
+
+### Releases
+
+Versions are `vX.Y.Z` (`vX.Y.Z-rc.N` for release candidates), starting at `v0.1.0`; the tags inherited from the Phase CLI were removed from this fork. Only admins can create, move or delete `v*` tags (ruleset `release-tags`, managed by `scripts/github/protect-main.sh` in [libreseal](https://github.com/Dos2Locos/libreseal)). Pushing a tag on a commit of `main` runs `.github/workflows/release.yml`: it checks the tag, runs the tests and GoReleaser, and opens a **draft** release for a maintainer to review and publish.
+
+To keep a local clone free of the old upstream tags: `git fetch --prune --prune-tags origin` and, if you added the Phase CLI as a remote, `git config remote.upstream.tagOpt --no-tags`.
 
 ## License
 

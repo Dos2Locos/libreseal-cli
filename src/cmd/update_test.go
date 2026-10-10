@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestUpdatePrintsSourceInstructionsWithoutPhaseInfrastructure(t *testing.T) {
+func TestUpdatePrintsReleaseAndSourceInstructionsWithoutPhaseInfrastructure(t *testing.T) {
 	var out bytes.Buffer
 	printUpdateInstructions(&out)
 	got := out.String()
@@ -16,6 +16,9 @@ func TestUpdatePrintsSourceInstructionsWithoutPhaseInfrastructure(t *testing.T) 
 	}
 	if !strings.Contains(got, "install-from-source.sh") {
 		t.Fatalf("update instructions should use the source installer:\n%s", got)
+	}
+	if !strings.Contains(got, "https://github.com/Dos2Locos/libreseal-cli/releases") {
+		t.Fatalf("update instructions should point to the release binaries:\n%s", got)
 	}
 	if strings.Contains(got, "phase.dev") {
 		t.Fatalf("update instructions must not reference Phase infrastructure:\n%s", got)
